@@ -1,0 +1,12 @@
+﻿FILE_NAME=Fájl:
+PASSWORD=Jelszó:
+BROWSE=Tallóz
+PUBLIC_KEY=Publikus kulcs
+PRIVATE_KEY=Privát kulcs
+DECRYPT=Decrypt
+LEFT_TIME=Még {0} másodpercig látható a titkosított adat.
+
+ERROR_01010001=A fájl nincs megadva!
+ERROR_01010002=A jelszó nincs megadva!
+ERROR_01010003=Ez nem egy corion wallet key fájl.
+ERROR_01010004=A jelszót rosszul adta meg!

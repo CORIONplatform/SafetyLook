@@ -1,0 +1,12 @@
+﻿FILE_NAME=File:
+PASSWORD=Password:
+BROWSE=Browse
+PUBLIC_KEY=Public key
+PRIVATE_KEY=Private key
+DECRYPT=Decrypt
+LEFT_TIME=Encrypted data visible for {0} seconds.
+
+ERROR_01010001=File not set!
+ERROR_01010002=Password is not set!
+ERROR_01010003=This is not a corion wallet key file .
+ERROR_01010004=Password is incorrect!

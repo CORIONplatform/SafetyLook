@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorionSafetyLook", "CorionSafetyLook\CorionSafetyLook.csproj", "{BE9AFC04-E7E0-496B-9405-B9DE49A898C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TC.Translate", "TC.TranslateModule\TC.Translate.csproj", "{9018D698-E1C5-4D0A-AFF1-E02BAFEE4E2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SjclHelpers", "SjclHelpers\SjclHelpers.csproj", "{CF1BA023-3916-4790-B561-2D7D432F5A0A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE9AFC04-E7E0-496B-9405-B9DE49A898C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE9AFC04-E7E0-496B-9405-B9DE49A898C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE9AFC04-E7E0-496B-9405-B9DE49A898C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE9AFC04-E7E0-496B-9405-B9DE49A898C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9018D698-E1C5-4D0A-AFF1-E02BAFEE4E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9018D698-E1C5-4D0A-AFF1-E02BAFEE4E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9018D698-E1C5-4D0A-AFF1-E02BAFEE4E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9018D698-E1C5-4D0A-AFF1-E02BAFEE4E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF1BA023-3916-4790-B561-2D7D432F5A0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF1BA023-3916-4790-B561-2D7D432F5A0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF1BA023-3916-4790-B561-2D7D432F5A0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF1BA023-3916-4790-B561-2D7D432F5A0A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
