@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace TC.Translate
@@ -73,12 +75,36 @@ namespace TC.Translate
 
         private Dictionary<string, string> LoadDictionary(CultureInfo language)
         {
-            var filePath = "Dictionaries\\" + language.ToString().Replace("-", "") + ".dic";
-            if(!System.IO.File.Exists(filePath) && language.ToString() != "en-US")
+            var fileName = language.ToString().Replace("-", "") + ".dic";
+            string[] lines = { };
+
+            var assembly = Assembly.GetEntryAssembly();
+            var fileData = assembly.GetManifestResourceNames().SingleOrDefault(p => p.Contains("Dictionaries." + fileName));
+            if (!string.IsNullOrEmpty(fileData))
             {
-                return LoadDictionary(CultureInfo.GetCultures(CultureTypes.AllCultures).Single(c => c.Name == "en-US"));
+                // try to get from embed resource
+                using (Stream stream = assembly.GetManifestResourceStream(fileData))
+                {
+                    if (stream != null)
+                    {
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            lines = reader.ReadToEnd().Split('\n');
+                        }
+                    }
+                }
             }
-            var lines = System.IO.File.ReadAllLines(filePath);
+            // try to get from files
+            if (lines == null || lines.Count() == 0)
+            {
+                var filePath = "Dictionaries\\" + fileName;
+                if (!System.IO.File.Exists(filePath) && language.ToString() != "en-US")
+                {
+                    return LoadDictionary(CultureInfo.GetCultures(CultureTypes.AllCultures).Single(c => c.Name == "en-US"));
+                }
+                lines = System.IO.File.ReadAllLines(filePath);
+            }
+            // load the dictionary
             Dictionary<string, string> dict = new Dictionary<string, string>();
             foreach (var line in lines.Where(p => p.Contains("=")))
             {
