@@ -36,8 +36,8 @@ namespace CorionSafetyLook
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
             dlg.FileName = FileLocation;
-            dlg.DefaultExt = ".json";
-            dlg.Filter = "JSON (Encoded) Files|*json*";
+            dlg.DefaultExt = ".cor";
+            dlg.Filter = "Corion File (*.cor)|*.cor|All files (*.*)|*.*";
 
             Nullable<bool> result = dlg.ShowDialog();
 
