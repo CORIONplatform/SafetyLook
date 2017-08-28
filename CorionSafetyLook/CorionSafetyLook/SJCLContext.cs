@@ -81,7 +81,7 @@ namespace CorionSafetyLook
         }
         public string DecryptV3(string data, string password)
         {
-            var resultScript = "var result = deCryptV3('" + password + "',"+data+");";
+            var resultScript = "var result = deCryptV3('" + password + "','"+data+"');";
             this.Context.Run(resultScript);
             return this.Context.GetParameter("result").ToString();
         }

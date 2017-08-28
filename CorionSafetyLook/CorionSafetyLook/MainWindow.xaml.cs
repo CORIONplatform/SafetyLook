@@ -84,7 +84,8 @@ namespace CorionSafetyLook
                             }
                             else if (corionFile.EncryptVersion == 3)
                             {
-                                privateKey = DecryptPrivateKeyByPasswordEncodingVer3(corionFile.PrivateKey, Password);
+                                var data = Encoding.UTF8.GetString(Convert.FromBase64String(corionFile.PrivateKey));
+                                privateKey = DecryptPrivateKeyByPasswordEncodingVer3(data, Password);
                             }
                             else
                             {
