@@ -27,7 +27,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -39,12 +39,15 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\icon_64.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
-      <HintPath>..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Noesis.Javascript, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86" Condition="'$(PlatformTarget)' == 'x86'">
+      <HintPath>..\packages\Noesis.Javascript.0.7.1.0\lib\net40\x86\Noesis.Javascript.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -75,6 +78,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SJCLContext.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -84,8 +88,6 @@
     <Compile Include="Models\CorionSafetyLookException.cs" />
     <Compile Include="Models\CorionKeyData.cs" />
     <Compile Include="Models\CorionSafetyLookExceptionCodes.cs" />
-    <Compile Include="SjclDecrypter\SJCLAESTables.cs" />
-    <Compile Include="SjclDecrypter\SJCLDecryptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -122,14 +124,27 @@
     <SplashScreen Include="SplashScreen.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SjclHelpers\SjclHelpers.csproj">
-      <Project>{cf1ba023-3916-4790-b561-2d7d432f5a0a}</Project>
-      <Name>SjclHelpers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TC.TranslateModule\TC.Translate.csproj">
       <Project>{9018d698-e1c5-4d0a-aff1-e02bafee4e2c}</Project>
       <Name>TC.Translate</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\sjcl.min.js" />
+    <EmbeddedResource Include="Resources\utils.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\sha3.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\icon_64.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
+    xcopy /s /y "$(SolutionDir)packages\Noesis.Javascript.0.7.1.0\NativeBinaries\net40\x86\*.*" "$(TargetDir)x86"
+    if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
+    xcopy /s /y "$(SolutionDir)packages\Noesis.Javascript.0.7.1.0\NativeBinaries\net40\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

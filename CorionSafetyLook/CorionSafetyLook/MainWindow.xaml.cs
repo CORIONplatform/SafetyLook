@@ -1,7 +1,5 @@
 ﻿using CorionSafetyLook.Models;
-using MebiusLib;
 using Newtonsoft.Json;
-using SjclHelpers.Codec;
 using System;
 using System.IO;
 using System.Text;
@@ -50,110 +48,129 @@ namespace CorionSafetyLook
 
         private void DecryptButtonClicked(object sender, RoutedEventArgs e)
         {
+            Loader.Visibility = Visibility.Visible;
+            mainWindow.IsEnabled = false;
             this.CleanData();
-            try
+            var privateKey = "";
+            var publicKey = "";
+            var errorMessage = "";
+            var worker = new System.ComponentModel.BackgroundWorker();
+            worker.DoWork += (a, b) =>
             {
-                if (string.IsNullOrEmpty(FileLocation))
-                {
-                    throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.FILE_NOT_SET);
-                }
-
                 try
                 {
-                    var corionFile = ReadCorionFile(FileLocation);
-                    if (corionFile == null || corionFile.PrivateKey == null || corionFile.PublicKey == null || corionFile.EncryptVersion == 0)
+                    if (string.IsNullOrEmpty(FileLocation))
                     {
-                        throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.INVALID_CORION_FILE);
+                        throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.FILE_NOT_SET);
                     }
 
-                    if (corionFile.Encrypted)
+                    try
                     {
-                        if (string.IsNullOrEmpty(Password))
+                        var corionFile = ReadCorionFile(FileLocation);
+                        if (corionFile == null || corionFile.PrivateKey == null || corionFile.PublicKey == null || corionFile.EncryptVersion == 0)
                         {
-                            throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.PASSWORD_NOT_SET);
+                            throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.INVALID_CORION_FILE);
                         }
-                        if (corionFile.EncryptVersion == 2)
+
+                        if (corionFile.Encrypted)
                         {
-                            tbPrivateKey.Text = DecryptPrivateKeyByPassword(corionFile.PrivateKey, Password);
+                            if (string.IsNullOrEmpty(Password))
+                            {
+                                throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.PASSWORD_NOT_SET);
+                            }
+                            if (corionFile.EncryptVersion == 2)
+                            {
+                                privateKey = DecryptPrivateKeyByPasswordEncodingVer2(corionFile.PrivateKey, Password);
+                            }
+                            else if (corionFile.EncryptVersion == 3)
+                            {
+                                var data = Encoding.UTF8.GetString(Convert.FromBase64String(corionFile.PrivateKey));
+                                privateKey = DecryptPrivateKeyByPasswordEncodingVer3(data, Password);
+                            }
+                            else
+                            {
+                                throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.UNKNOWN_ENCRYPTION);
+                            }
                         }
                         else
                         {
-                            throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.UNKNOWN_ENCRYPTION);
+                            privateKey = corionFile.PrivateKey;
+                        }
+
+                        publicKey = corionFile.PublicKey;
+                        StartCounter();
+                    }
+                    catch (InvalidDataException ex)
+                    {
+                        throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.INVALID_CORION_FILE);
+                    }
+                    catch (System.Security.Cryptography.CryptographicException ex)
+                    {
+                        throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.WRONG_PASSWORD);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.StackTrace.Contains("SJCL"))
+                        {
+                            throw new CorionSafetyLookException(0x01010004);
+                        }
+                        else
+                        {
+                            throw ex;
                         }
                     }
-                    else
-                    {
-                        tbPrivateKey.Text = corionFile.PrivateKey;
-                    }
-
-                    tbPublicKey.Text = corionFile.PublicKey;
-                    StartCounter();
                 }
-                catch (InvalidDataException ex)
+                catch (CorionSafetyLookException ex)
                 {
-                    throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.INVALID_CORION_FILE);
-                }
-                catch (System.Security.Cryptography.CryptographicException ex)
-                {
-                    throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.WRONG_PASSWORD);
+                    errorMessage = (LanguageContext.Instance.GetText("ERROR_" + ex.HResult.ToString("X8")));
                 }
                 catch (Exception ex)
                 {
-                    if (ex.StackTrace.Contains("SJCL"))
-                    {
-                        throw new CorionSafetyLookException(0x01010004);
-                    }
-                    else
-                    {
-                        throw ex;
-                    }
+                    errorMessage = (ex.Message);
                 }
-            }
-            catch (CorionSafetyLookException ex)
+            };
+            worker.RunWorkerCompleted += (a, b) =>
             {
-                SetError(LanguageContext.Instance.GetText("ERROR_" + ex.HResult.ToString("X8")));
-            }
-            catch (Exception ex)
-            {
-                SetError(ex.Message);
-            }
+                Loader.Visibility = Visibility.Collapsed;
+                mainWindow.IsEnabled = true;
+                if (errorMessage == "")
+                {
+                    tbPrivateKey.Text = privateKey;
+                    tbPublicKey.Text = publicKey;
+                }
+                else
+                {
+                    SetError(errorMessage);
+                }
+            };
+            worker.RunWorkerAsync();
 
         }
 
 
         /// <summary>
-        /// Return with the decrypted hex private key
+        /// Return with the decrypted hex private key ver 2
         /// </summary>
         /// <param name="encryptedData"></param>
         /// <param name="password"></param>
         /// <returns>Return with the decrypted hex private key</returns>
-        private string DecryptPrivateKeyByPassword(string encryptedData, string password)
+        private string DecryptPrivateKeyByPasswordEncodingVer2(string encryptedData, string password)
         {
-            password = keccak_256(keccak_256(password));
-            // 0~32
-            var saltBits = BinaryNotationConverter.ToBase64(password.Substring(0, 32));
-            // 32~64
-            var iv = BinaryNotationConverter.ToBase64(password.Substring(32, 32));
-
-            var sjclDecryptor = new SJCLDecryptor("{ v : 1, iv : \"" + iv + "\", salt : \"" + saltBits + "\", ks : 256, ts : 128, mode : \"ccm\",iter:50000, cipher : \"aes\", ct : \"" + BinaryNotationConverter.ToBase64(encryptedData) + "\" }", keccak_256(password));
-            return sjclDecryptor.Plaintext;
+           return SJCLContext.Instance.DecryptV2(encryptedData, password);
         }
 
         /// <summary>
-        /// Return with the input string keccak encoded hex version
+        /// Return with the decrypted hex private key ver3
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        private string keccak_256(string input)
+        /// <param name="encryptedData"></param>
+        /// <param name="password"></param>
+        /// <returns>Return with the decrypted hex private key</returns>
+        private string DecryptPrivateKeyByPasswordEncodingVer3(string encryptedData, string password)
         {
-            var data = Encoding.UTF8.GetBytes(input);
-            Org.BouncyCastle.Crypto.Digests.KeccakDigest dig = new Org.BouncyCastle.Crypto.Digests.KeccakDigest(256);
-            dig.Reset();
-            dig.BlockUpdate(data, 0, data.Length);
-            byte[] hashedBytes = new byte[256 / 8];
-            dig.DoFinal(hashedBytes, 0);
-            return BinaryNotationConverter.ToHex(hashedBytes);
+            return SJCLContext.Instance.DecryptV3(encryptedData, password);
         }
+
+
 
         /// <summary>
         /// load the CorionWallerKeyFile from location

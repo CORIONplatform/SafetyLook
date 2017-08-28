@@ -7,56 +7,67 @@
         mc:Ignorable="d"
         Title="Corion SafetyLook" Height="600" Width="800" Name="mainWindow" DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
-    <Grid Grid.Row="1" Margin="3">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="60" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="30" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="150" />
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30" />
-                    <RowDefinition Height="30" />
-                </Grid.RowDefinitions>
+    <Grid>
+        <Grid Grid.Row="1" Margin="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Translate FILE_NAME}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="3" />
-                <TextBlock Text="{Translate PASSWORD}" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="3" />
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Translate FILE_NAME}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="3" />
+                    <TextBlock Text="{Translate PASSWORD}" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="3" />
 
-                <Grid Grid.Row="0" Grid.Column="1">
-                    <TextBox Name="tbFileLocation" Text="{Binding InputFileLocation,Mode=TwoWay}" Margin="3,3,80,3" IsEnabled="False" VerticalContentAlignment="Center" />
-                    <Button Content="{Translate BROWSE}" Margin="3" Width="75" Click="BrowseFileLocation" HorizontalAlignment="Right"/>
+                    <Grid Grid.Row="0" Grid.Column="1">
+                        <TextBox Name="tbFileLocation" Text="{Binding InputFileLocation,Mode=TwoWay}" Margin="3,3,80,3" IsEnabled="False" VerticalContentAlignment="Center" />
+                        <Button Content="{Translate BROWSE}" Margin="3" Width="75" Click="BrowseFileLocation" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <PasswordBox Name="passwordBox"  Grid.Row="1" Grid.Column="1" Margin="3" PasswordChanged="StorePassword" VerticalContentAlignment="Center"/>
                 </Grid>
-                <PasswordBox Name="passwordBox"  Grid.Row="1" Grid.Column="1" Margin="3" PasswordChanged="StorePassword" VerticalContentAlignment="Center"/>
+
+                <Image Grid.Column="1" Source="Resources/logo.png" HorizontalAlignment="Left"/>
             </Grid>
 
-            <Image Grid.Column="1" Source="Resources/logo.png" HorizontalAlignment="Left"/>
-        </Grid>
+            <Grid  Grid.Row="1" Margin="3" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="{Translate PUBLIC_KEY}" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Name="tbPublicKey"/>
+                <TextBlock Grid.Row="2" Text="{Translate PRIVATE_KEY}" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="3" Name="tbPrivateKey"/>
 
-        <Grid  Grid.Row="1" Margin="3" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="{Translate PUBLIC_KEY}" VerticalAlignment="Center"/>
-            <TextBox Grid.Row="1" Name="tbPublicKey"/>
-            <TextBlock Grid.Row="2" Text="{Translate PRIVATE_KEY}" VerticalAlignment="Center"/>
-            <TextBox Grid.Row="3" Name="tbPrivateKey"/>
+            </Grid>
+            <Grid  Grid.Row="3">
+                <TextBlock Name="tbMessage" Text="" FontWeight="Bold" Background="Transparent" VerticalAlignment="Center" Margin="3" Foreground="Red"/>
+                <TextBlock Name="tbTimer" Text="" Background="Transparent" VerticalAlignment="Center" Margin="3" Foreground="Black"/>
+                <Button Content="{Translate DECRYPT}" Margin="3"  Width="75" Click="DecryptButtonClicked" HorizontalAlignment="Right" />
+            </Grid>
         </Grid>
-        <Grid  Grid.Row="3">
-            <TextBlock Name="tbMessage" Text="" FontWeight="Bold" Background="Transparent" VerticalAlignment="Center" Margin="3" Foreground="Red"/>
-            <TextBlock Name="tbTimer" Text="" Background="Transparent" VerticalAlignment="Center" Margin="3" Foreground="Black"/>
-            <Button Content="{Translate DECRYPT}" Margin="3"  Width="75" Click="DecryptButtonClicked" HorizontalAlignment="Right" />
+        <Grid Name="Loader" Background="#33000000" Visibility="Collapsed">
+            <Grid HorizontalAlignment="Center" Height="50" Width="300">
+                <ProgressBar x:Name="ProgressUpload" Margin="5" IsIndeterminate="True" Height="50"></ProgressBar>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image Source="Resources/icon_64.png" Height="30" />
+                    <TextBlock Text="Loading private key..." FontSize="16" Background="Transparent" VerticalAlignment="Center"></TextBlock>
+                </StackPanel>
+            </Grid>
         </Grid>
-
     </Grid>
 </Window>
