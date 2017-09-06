@@ -87,6 +87,11 @@ namespace CorionSafetyLook
                                 var data = Encoding.UTF8.GetString(Convert.FromBase64String(corionFile.PrivateKey));
                                 privateKey = DecryptPrivateKeyByPasswordEncodingVer3(data, Password);
                             }
+                            else if (corionFile.EncryptVersion == 4)
+                            {
+                                var data = Encoding.UTF8.GetString(Convert.FromBase64String(corionFile.PrivateKey));
+                                privateKey = DecryptPrivateKeyByPasswordEncodingVer4(data, Password);
+                            }
                             else
                             {
                                 throw new CorionSafetyLookException(CorionSafetyLookExceptionCodes.UNKNOWN_ENCRYPTION);
@@ -168,6 +173,17 @@ namespace CorionSafetyLook
         private string DecryptPrivateKeyByPasswordEncodingVer3(string encryptedData, string password)
         {
             return SJCLContext.Instance.DecryptV3(encryptedData, password);
+        }
+
+        /// <summary>
+        /// Return with the decrypted hex private key ver4
+        /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <param name="password"></param>
+        /// <returns>Return with the decrypted hex private key</returns>
+        private string DecryptPrivateKeyByPasswordEncodingVer4(string encryptedData, string password)
+        {
+            return SJCLContext.Instance.DecryptV4(encryptedData, password);
         }
 
 
