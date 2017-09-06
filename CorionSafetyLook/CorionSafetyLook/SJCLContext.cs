@@ -46,8 +46,9 @@ namespace CorionSafetyLook
 	                        var derivedKey = sjcl.misc.pbkdf2( keccak_256(keccak_256(password)), saltBits, 50000, 256 );
 	                        return sjcl.decrypt(derivedKey, JSON.stringify({ v:1, iv:iv, salt:saltBits, ks:256, ts:128, mode:""ccm"", cipher:""aes"", ct:sjcl.codec.base64.fromBits(sjcl.codec.hex.toBits(data)) }));
                         }";
+
             var decrypt_v3 = @"
-	            function _genKeys(plainPassword) {
+	            function _genKeysV3(plainPassword) {
 		            if ( typeof(plainPassword) === '' ) { throw new Error(""Password is not initialized!""); }
 
                     var bn = sjcl.bn.fromBits(sjcl.misc.pbkdf2(keccak_256(keccak_256(plainPassword)), sjcl.codec.base64.fromBits(sjcl.codec.hex.toBits(keccak_256(plainPassword).slice(0, 32))), 50000, 512));
@@ -55,7 +56,20 @@ namespace CorionSafetyLook
                     return sjcl.ecc.elGamal.generateKeys(sjcl.ecc.curves.c384, 6, bn);
                 }
                 function deCryptV3(plainPassword, msg) {
-		            return sjcl.decrypt(new sjcl.ecc.elGamal.secretKey(sjcl.ecc.curves.c384, sjcl.bn.prime.p384.fromBits(_genKeys(plainPassword).sec.get())), msg);
+		            return sjcl.decrypt(new sjcl.ecc.elGamal.secretKey(sjcl.ecc.curves.c384, sjcl.bn.prime.p384.fromBits(_genKeysV3(plainPassword).sec.get())), msg);
+	            }";
+
+            var decrypt_v4 = @"
+                function _genKeysV4(plainPassword) {
+		            if ( typeof(plainPassword) === '' ) { throw new Error(""Password is not initialized!""); }
+
+                    var bn = sjcl.bn.fromBits(sjcl.misc.pbkdf2(keccak_256(keccak_256(plainPassword)), sjcl.codec.hex.toBits(keccak_256(plainPassword).slice(0, 32)), 25000, 2048));
+                        bn = bn.mod(sjcl.ecc.curves.c256.r);
+                        return sjcl.ecc.elGamal.generateKeys(sjcl.ecc.curves.c256, 0, bn);
+                }
+                function deCryptV4(plainPassword, msg) {
+                    var keys = this._genKeysV4(plainPassword);
+		            return sjcl.decrypt(keys.sec, msg);
 	            }";
 
             var custom_keccak_256 = @"
@@ -69,6 +83,7 @@ namespace CorionSafetyLook
             this.Context.Run(custom_keccak_256);
             this.Context.Run(decrypt_v2);
             this.Context.Run(decrypt_v3);
+            this.Context.Run(decrypt_v4);
 
         }
 
@@ -79,9 +94,17 @@ namespace CorionSafetyLook
             this.Context.Run(resultScript);
             return this.Context.GetParameter("result").ToString();
         }
+
         public string DecryptV3(string data, string password)
         {
-            var resultScript = "var result = deCryptV3('" + password + "','"+data+"');";
+            var resultScript = "var result = deCryptV3('" + password + "','" + data + "');";
+            this.Context.Run(resultScript);
+            return this.Context.GetParameter("result").ToString();
+        }
+
+        public string DecryptV4(string data, string password)
+        {
+            var resultScript = "var result = deCryptV4('" + password + "','" + data + "');";
             this.Context.Run(resultScript);
             return this.Context.GetParameter("result").ToString();
         }
